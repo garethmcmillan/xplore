@@ -13,15 +13,41 @@ class xplore::server::dsearch() {
   $xplore_host     = $hostname
   $xplore_password = '1234qwer'
   $xplore_admin    = 'admin'
+  $service_name    = 'PrimaryDsearch'
 
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
   file { 'dsearch-response':
     ensure    => file,
     path      => '/home/xplore/sig/dsearch/dsearch.properties',
-    owner     => xplore,
-    group     => xplore,
+    owner     => root,
+    group     => root,
     content   => template('xplore/dsearch.properties.erb'),
   }
+
+  file { 'dsearch-serviceConfig':
+    ensure    => file,
+    path      => '/etc/defualt/${service_name}',
+    owner     => root,
+    group     => root,
+    content   => template('xplore/service.conf.erb'),
+  }
+
+  file { 'dsearch-serviceStartScript':
+    ensure    => file,
+    path      => '/etc/init.d/${service_name}',
+    owner     => xplore,
+    group     => xplore,
+    content   => template('xplore/service.erb'),
+  }
+
+  exec {'chkconfig-dsearch':
+    require     => [File["dsearch-serviceConfig"],
+                    File["dsearch-serviceStartScript"],
+                  ],
+    command  => 'chkconfig -add ${service_name}; chkconfig ${service_name} on',
+    onlyif   => ['! service ${service_name} status'],
+  }
+
 
   exec { "dsearch-create":
     command     => "${installer}/dsearchConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f /home/xplore/sig/dsearch/dsearch.properties -r /home/xplore/sig/dsearch/response.properties",
@@ -38,15 +64,11 @@ class xplore::server::dsearch() {
     timeout     => 3000,
   }
 
-  exec { "dseach-start":
-    command     => "nohup ${xplore_home}/wildfly9.0.1/server/startPrimaryDsearch.sh &",
-    require     => [Exec["dsearch-create"],
-                    ],
-environment => ["HOME=/home/xplore",
-                  ],                    
-    cwd         => $installer,
-    user        => xplore,
-    group       => xplore,
+  service { '${service_name}':
+    ensure  => running,
+    enable  => true,
+    require => [File["chkconfig-dsearch"],
+                Exec["dsearch-create"],]
   }
 
 }

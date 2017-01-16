@@ -17,7 +17,7 @@ class xplore::server::indexagent() {
   $ia_storage      = '/u01/app/xplore/iastore'
 
   $repo            = 'fcms'
-  $repo_user       = 'dmadin'
+  $repo_user       = 'dmadim'
   $repo_pass       = 'vagrant'
   $docbroker_host  = 'dctm.local'
   $docbroker_port  = '1489'
