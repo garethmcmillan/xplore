@@ -5,7 +5,7 @@
 #
 class xplore::server::server() {
 
-    $installer  = '/home/xplore/sig/cs'
+    $installer  = '/home/xplore/sig/server'
     $xplore_home = '/u01/app/xplore'
     $version    = '1.6'
 
@@ -25,8 +25,8 @@ class xplore::server::server() {
  file { 'server-properties':
    ensure    => file,
    path      => '/home/xplore/sig/server/server.properties',
-   owner     => dmadmin,
-   group     => dmadmin,
+   owner     => xplore,
+   group     => xplore,
    content   => template('xplore/server.properties.erb'),
  }
 
@@ -41,13 +41,13 @@ class xplore::server::server() {
   }
 
   exec { "xplore-install":
-    command     => "${installer}/server.bin -f /home/xplore/sig/server/server.properties",
+    command     => "${installer}/setup.bin -f /home/xplore/sig/server/server.properties",
     cwd         => $installer,
-    require     => [Exec["xplore-installer"],a
+    require     => [Exec["xplore-installer"],
                     Group["xplore"],
                     User["xplore"]],
     environment => ["HOME=/home/xplore"],
-    creates     => "${xplore_home}/installinfo/${version}/version.properties",
+    creates     => "${xplore_home}/installinfo/version.properties",
     user        => xplore,
     group       => xplore,
     timeout     => 1800,

@@ -7,17 +7,19 @@ class xplore::server::indexagent() {
   $installer       = '/u01/app/xplore/setup/indexagent'
   $xplore_home     = '/u01/app/xplore'
 # note this should only be the first two ports, eg if 9300, use 93
-  $xplore_port     = '9300'
-  $xplore_host     = $hostname
+  $dsearch_port     = '9300'
+  $dsearch_host     = $hostname
 
   $ia_name         = 'Indexagent'
+  $ia_host         = $hostname
   $ia_port         = '9200'
   $ia_pass         = '1234qwer'
+  $ia_storage      = '/u01/app/xplore/iastore'
 
   $repo            = 'fcms'
   $repo_user       = 'dmadin'
   $repo_pass       = 'vagrant'
-  $docbroker_host  = $hostname
+  $docbroker_host  = 'dctm.local'
   $docbroker_port  = '1489'
   $globalrepo      = 'fcms'
   $globaluser      = 'dm_bof_registry'
@@ -33,7 +35,7 @@ class xplore::server::indexagent() {
   }
 
   exec { "ia-create":
-    command     => "${installer}/configIndexagent.sh -f /home/xplore/sig/ia/indexagent.properties -r /home/xplore/sig/ia/response.properties -i Silent",
+    command     => "${installer}/iaConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f /home/xplore/sig/ia/indexagent.properties -r /home/xplore/sig/ia/response.properties",
     cwd         => $installer,
     require     => [File["ia-response"],
                     User["xplore"],
@@ -48,7 +50,7 @@ class xplore::server::indexagent() {
   }
 
   exec { "ia-start":
-    command     => "${xplore_home}/wildfly9.0.1/server/startIndexagent.sh",
+    command     => "/usr/bin/nohup ${xplore_home}/wildfly9.0.1/server/startIndexagent.sh &",
     require     => [Exec["ia-create"],
                     ],
     cwd         => $installer,

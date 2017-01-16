@@ -24,9 +24,9 @@ class xplore::server::dsearch() {
   }
 
   exec { "dsearch-create":
-    command     => "${installer}/configDsearch.sh -f /home/xplore/sig/dsearch/dsearch.properties -r /home/xplore/sig/dsearch/response.properties -i Silent",
+    command     => "${installer}/dsearchConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f /home/xplore/sig/dsearch/dsearch.properties -r /home/xplore/sig/dsearch/response.properties",
     cwd         => $installer,
-    require     => [File["dearch-response"],
+    require     => [File["dsearch-response"],
                     User["xplore"],
                     ],
     environment => ["HOME=/home/xplore",
@@ -39,9 +39,11 @@ class xplore::server::dsearch() {
   }
 
   exec { "dseach-start":
-    command     => "${xplore_home}/wildfly9.0.1/server/startPrimaryDsearch.sh",
+    command     => "nohup ${xplore_home}/wildfly9.0.1/server/startPrimaryDsearch.sh &",
     require     => [Exec["dsearch-create"],
                     ],
+environment => ["HOME=/home/xplore",
+                  ],                    
     cwd         => $installer,
     user        => xplore,
     group       => xplore,
