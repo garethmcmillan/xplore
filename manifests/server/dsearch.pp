@@ -26,17 +26,19 @@ class xplore::server::dsearch() {
 
   file { 'dsearch-serviceConfig':
     ensure    => file,
-    path      => '/etc/defualt/${service_name}',
+    path      => "/etc/default/${service_name}.conf",
     owner     => root,
     group     => root,
+    mode      => 755,
     content   => template('xplore/service.conf.erb'),
   }
 
   file { 'dsearch-serviceStartScript':
     ensure    => file,
-    path      => '/etc/init.d/${service_name}',
-    owner     => xplore,
-    group     => xplore,
+    path      => "/etc/init.d/${service_name}",
+    owner     => root,
+    group     => root,
+    mode      => 755,
     content   => template('xplore/service.erb'),
   }
 
@@ -44,8 +46,8 @@ class xplore::server::dsearch() {
     require     => [File["dsearch-serviceConfig"],
                     File["dsearch-serviceStartScript"],
                   ],
-    command  => 'chkconfig -add ${service_name}; chkconfig ${service_name} on',
-    onlyif   => ['! service ${service_name} status'],
+    command  => "/sbin/chkconfig --add ${service_name}; /sbin/chkconfig ${service_name} on",
+    #onlyif   => ["! /sbin/service ${service_name} status"],
   }
 
 
@@ -64,11 +66,13 @@ class xplore::server::dsearch() {
     timeout     => 3000,
   }
 
-  service { '${service_name}':
+  service { $service_name:
     ensure  => running,
     enable  => true,
-    require => [File["chkconfig-dsearch"],
-                Exec["dsearch-create"],]
+    require => [Exec["chkconfig-dsearch"],
+                Exec["dsearch-create"],
+                File["dsearch-serviceConfig"],
+                File["dsearch-serviceStartScript"],]
   }
 
 }

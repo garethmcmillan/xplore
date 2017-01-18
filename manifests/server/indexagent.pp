@@ -24,6 +24,7 @@ class xplore::server::indexagent() {
   $globalrepo      = 'fcms'
   $globaluser      = 'dm_bof_registry'
   $globalpasswod   = '1234qwer'
+  $service_name    = $ia_name
 
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
   file { 'ia-response':
@@ -32,6 +33,32 @@ class xplore::server::indexagent() {
     owner     => xplore,
     group     => xplore,
     content   => template('xplore/indexagent.properties.erb'),
+  }
+
+  file { 'ia-serviceConfig':
+    ensure    => file,
+    path      => "/etc/default/${service_name}.conf",
+    owner     => root,
+    group     => root,
+    mode      => 755,
+    content   => template('xplore/service.conf.erb'),
+  }
+
+  file { 'ia-serviceStartScript':
+    ensure    => file,
+    path      => "/etc/init.d/${service_name}",
+    owner     => root,
+    group     => root,
+    mode      => 755,
+    content   => template('xplore/service.erb'),
+  }
+
+  exec {'chkconfig-ia':
+    require     => [File["ia-serviceConfig"],
+                    File["ia-serviceStartScript"],
+                  ],
+    command  => "/sbin/chkconfig --add ${service_name}; /sbin/chkconfig ${service_name} on",
+    #onlyif   => ["! /sbin/service ${service_name} status"],
   }
 
   exec { "ia-create":
@@ -58,4 +85,12 @@ class xplore::server::indexagent() {
     group       => xplore,
   }
 
+  service { $service_name:
+    ensure  => running,
+    enable  => true,
+    require => [Exec["chkconfig-ia"],
+                Exec["ia-create"],
+                File["ia-serviceConfig"],
+                File["ia-serviceStartScript"],]
+  }
 }
