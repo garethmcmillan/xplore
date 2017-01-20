@@ -8,10 +8,10 @@ class xplore::server::indexagent() {
   $xplore_home     = '/u01/app/xplore'
 # note this should only be the first two ports, eg if 9300, use 93
   $dsearch_port     = '9300'
-  $dsearch_host     = $hostname
+  $dsearch_host     = 'xplore.local'
 
   $ia_name         = 'Indexagent'
-  $ia_host         = $hostname
+  $ia_host         = 'xplore.local'
   $ia_port         = '9200'
   $ia_pass         = '1234qwer'
   $ia_storage      = '/u01/app/xplore/iastore'

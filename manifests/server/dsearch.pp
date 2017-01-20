@@ -10,7 +10,7 @@ class xplore::server::dsearch() {
   $xplore_port     = '93'
   $xplore_data     = '/u01/app/xplore/data'
   $xplore_config   = '/u01/app/xplore/config'
-  $xplore_host     = $hostname
+  $xplore_host     = 'xplore.local'
   $xplore_password = '1234qwer'
   $xplore_admin    = 'admin'
   $service_name    = 'PrimaryDsearch'
