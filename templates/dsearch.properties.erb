@@ -1,10 +1,5 @@
 INSTALLER_UI=SILENT
 common.installLocation=<%=@xplore_home%>
-COMMON.DCTM_USER_DIR_WITH_FORWARD_SLASH=<%=@xplore_home%>
-common.64bits=true
-COMMON.JAVA64_HOME=<%=@xplore_home%>/java64/1.8.0_77
-CURRENT_VERSION=1.6.0000
-CURRENT_BUILD_NUMBER=0835
 
 ess.configMode.primary=1
 ess.configMode.secondary=0
@@ -23,15 +18,10 @@ ess.name=PrimaryDsearch
 ess.FQDN=<%=@xplore_host%>
 ess.instance.password=<%=@xplore_password%>
 ess.instance.port=<%=@xplore_port%>00
-ess.cps.active=true
+ess.cps.active=false
 ess.xdb-listener-port=<%=@xplore_port%>30
 ess.admin-rmi-port=<%=@xplore_port%>31
 ess.cps-daemon-port=<%=@xplore_port%>21
 ess.cps-daemon-local-port=<%=@xplore_port%>22
 admin.username=<%=@xplore_admin%>
 admin.password=<%=@xplore_password%>
-
-ess.transaction_log_dir=/u01/app/xplore/tranlog
-#ess.ess.active=true
-#ess.essAdmin.active=true
-common.installOwner.password=vagrant
