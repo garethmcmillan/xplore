@@ -16,9 +16,9 @@ class xplore {
 
   include xplore::server::server
   include xplore::server::dsearch
-#  include xplore::server::indexagent
+  include xplore::server::indexagent
 
   Class [ 'xplore::server::server' ]     ->
-  Class [ 'xplore::server::dsearch' ]    
-#  Class [ 'xplore::server::indexagent' ]
+  Class [ 'xplore::server::dsearch' ]    ->
+  Class [ 'xplore::server::indexagent' ]
 }

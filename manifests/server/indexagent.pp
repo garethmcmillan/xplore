@@ -76,15 +76,6 @@ class xplore::server::indexagent() {
     timeout     => 3000,
   }
 
-  exec { "ia-start":
-    command     => "/usr/bin/nohup ${xplore_home}/wildfly9.0.1/server/startIndexagent.sh &",
-    require     => [Exec["ia-create"],
-                    ],
-    cwd         => $installer,
-    user        => xplore,
-    group       => xplore,
-  }
-
   service { $service_name:
     ensure  => running,
     enable  => true,
