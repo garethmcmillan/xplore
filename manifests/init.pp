@@ -38,7 +38,7 @@ class xplore (
   $docbroker_port = undef,
   $globalrepo = undef,
   $globaluser = undef,
-  $globalpasswod = undef,
+  $globalpassword = undef,
   ){
   file { "/home/${xplore_owner}/.bashrc":
       owner => $xplore_owner,
@@ -65,6 +65,7 @@ class xplore (
       xplore_data        => $xplore_data,
       xplore_config      => $xplore_config,
 
+      dsearch_service    => $dsearch_service,
       dsearch_host       => $dsearch_host,
       dsearch_port       => $dsearch_port,
       dsearch_admin      => $dsearch_admin,
@@ -84,6 +85,7 @@ class xplore (
       dsearch_host        => $dsearch_host,
       dsearch_port        => $dsearch_port,
 
+      ia_service_name     => $ia_service_name,
       ia_host             => $ia_host,
       ia_port             => $ia_port,
       ia_password         => $ia_password,
@@ -96,7 +98,7 @@ class xplore (
       docbroker_port      => $docbroker_port,
       globalrepo          => $globalrepo,
       globaluser          => $globaluser,
-      globalpasswod       => $globalpasswod,
+      globalpassword      => $globalpassword,
 
       require             => Xplore::Server::Dsearch[$dsearch_service],
     }

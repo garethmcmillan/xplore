@@ -17,7 +17,7 @@ define xplore::server::dsearch(
   $dsearch_admin,
   $dsearch_password,
 
-  $dsearch_service = $name,
+  $dsearch_service,
   $service_name = $dsearch_service,
 ) {
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])

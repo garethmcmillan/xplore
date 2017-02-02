@@ -14,7 +14,7 @@ define xplore::server::indexagent(
 # note this should only be the first two ports, eg if 9300, use 93
   $dsearch_port,
 
-  $ia_service_name = $name,
+  $ia_service_name,
   $ia_host,
   $ia_port,
   $ia_password,
@@ -27,7 +27,7 @@ define xplore::server::indexagent(
   $docbroker_port,
   $globalrepo,
   $globaluser,
-  $globalpasswod,
+  $globalpassword,
 
   $service_name    = $ia_service_name
   ) {
@@ -74,7 +74,7 @@ define xplore::server::indexagent(
                     ],
     environment => ["HOME=/home/${xplore_owner}",
                     ],
-    creates     => "${xplore_home}/wildfly9.0.1/server/startIndexagent.sh",
+    creates     => "${xplore_home}/wildfly9.0.1/server/start${ia_service_name}.sh",
     user        => $xplore_owner,
     group       => $xplore_group,
     logoutput   => true,
