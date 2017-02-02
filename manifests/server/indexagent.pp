@@ -81,7 +81,7 @@ define xplore::server::indexagent(
     timeout     => 3000,
   }
 
-  service { $service_name:
+  service { $ia_service_name:
     ensure  => running,
     enable  => true,
     require => [Exec["chkconfig-ia"],

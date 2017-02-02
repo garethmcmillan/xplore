@@ -11,13 +11,13 @@ define xplore::server::dsearch(
   $xplore_data,
   $xplore_config,
 
-  $dsearch_service = $name,
   $dsearch_host,
 # note this should only be the first two ports, eg if 9300, use 93
   $dsearch_port,
   $dsearch_admin,
   $dsearch_password,
 
+  $dsearch_service = $name,
   $service_name = $dsearch_service,
 ) {
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
@@ -71,7 +71,7 @@ define xplore::server::dsearch(
     timeout     => 3000,
   }
 
-  service { $service_name:
+  service { $dsearch_service:
     ensure  => running,
     enable  => true,
     require => [Exec["chkconfig-dsearch"],

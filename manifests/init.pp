@@ -67,8 +67,9 @@ class xplore (
 
       dsearch_host       => $dsearch_host,
       dsearch_port       => $dsearch_port,
-      dearch_admin       => $dsearch_admin,
+      dsearch_admin      => $dsearch_admin,
       dsearch_password   => $dsearch_password,
+      require            => Xplore::Server::Server['server'],
     }
   }
 
@@ -96,6 +97,8 @@ class xplore (
       globalrepo          => $globalrepo,
       globaluser          => $globaluser,
       globalpasswod       => $globalpasswod,
+
+      require             => Xplore::Server::Dsearch[$dsearch_service],
     }
   }
 }
