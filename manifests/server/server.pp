@@ -3,11 +3,14 @@
 # Adds an Apache configuration file.
 # http://stackoverflow.com/questions/19024134/calling-puppet-defined-resource-with-multiple-parameters-multiple-times
 #
-class xplore::server::server() {
-
-    $installer  = '/home/xplore/sig/server'
-    $xplore_home = '/u01/app/xplore'
-    $version    = '1.6'
+define xplore::server::server(
+   $installer_location,
+   $source_location,
+   $xplore_home,
+   $version,
+   $xplore_owner,
+   $xplore_group,
+  ) {
 
  file { 'rngd-properties':
    ensure  => file,
@@ -24,35 +27,34 @@ class xplore::server::server() {
 
  file { 'server-properties':
    ensure    => file,
-   path      => '/home/xplore/sig/server/server.properties',
-   owner     => xplore,
-   group     => xplore,
+   path      => "${installer_location}/server/server.properties",
+   owner     => $xplore_owner,
+   group     => $xplore_group,
    content   => template('xplore/server.properties.erb'),
  }
 
   exec { "xplore-installer":
-    command   => "/bin/tar xvf /opt/media/Search/1.6/xPlore_1.6_linux-x64.tar",
+    command   => "/bin/tar xvf ${source_location}/Search/${version}/xPlore_${version}_linux-x64.tar",
     require   => Service["rngd"],
-    cwd       => $installer,
-    creates   => "${installer}/setup.bin",
-    user      => xplore,
-    group     => xplore,
+    cwd       => "${installer_location}/server",
+    creates   => "${installer_location}/server/setup.bin",
+    user      => $xplore_owner,
+    group     => $xplore_group,
     logoutput => true,
   }
 
   exec { "xplore-install":
-    command     => "${installer}/setup.bin -f /home/xplore/sig/server/server.properties",
-    cwd         => $installer,
+    command     => "${installer_location}/server/setup.bin -f ${installer_location}/server/server.properties",
+    cwd         => "${installer_location}/server",
     require     => [Exec["xplore-installer"],
-                    Group["xplore"],
-                    User["xplore"],
+                    User["${xplore_owner}"],
                     Host["xplore.local"],
                     File["${xplore_home}"],],
-    environment => ["HOME=/home/xplore",
+    environment => ["HOME=/home/${xplore_owner}",
                     "XPLORE_HOME=${xplore_home}"],
     creates     => "${xplore_home}/installinfo/version.properties",
-    user        => xplore,
-    group       => xplore,
+    user        => $xplore_owner,
+    group       => $xplore_group,
     timeout     => 1800,
     logoutput   => true,
   }

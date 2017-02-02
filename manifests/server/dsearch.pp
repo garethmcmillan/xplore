@@ -3,22 +3,27 @@
 # Adds an Apache configuration file.
 # http://stackoverflow.com/questions/19024134/calling-puppet-defined-resource-with-multiple-parameters-multiple-times
 #
-class xplore::server::dsearch() {
-  $installer       = '/u01/app/xplore/setup/dsearch'
-  $xplore_home     = '/u01/app/xplore'
-# note this should only be the first two ports, eg if 9300, use 93
-  $xplore_port     = '93'
-  $xplore_data     = '/u01/app/xplore/data'
-  $xplore_config   = '/u01/app/xplore/config'
-  $xplore_host     = 'xplore.local'
-  $xplore_password = '1234qwer'
-  $xplore_admin    = 'admin'
-  $service_name    = 'PrimaryDsearch'
+define xplore::server::dsearch(
+  $installer_location,
+  $xplore_home,
+  $xplore_owner,
+  $xplore_group,
+  $xplore_data,
+  $xplore_config,
 
+  $dsearch_service = $name,
+  $dsearch_host,
+# note this should only be the first two ports, eg if 9300, use 93
+  $dsearch_port,
+  $dsearch_admin,
+  $dsearch_password,
+
+  $service_name = $dsearch_service,
+) {
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
   file { 'dsearch-response':
     ensure    => file,
-    path      => '/home/xplore/sig/dsearch/dsearch.properties',
+    path      => "${installer_location}/dsearch/dsearch.properties",
     owner     => root,
     group     => root,
     content   => template('xplore/dsearch.properties.erb'),
@@ -26,7 +31,7 @@ class xplore::server::dsearch() {
 
   file { 'dsearch-serviceConfig':
     ensure    => file,
-    path      => "/etc/default/${service_name}.conf",
+    path      => "/etc/default/${dsearch_service}.conf",
     owner     => root,
     group     => root,
     mode      => 755,
@@ -35,7 +40,7 @@ class xplore::server::dsearch() {
 
   file { 'dsearch-serviceStartScript':
     ensure    => file,
-    path      => "/etc/init.d/${service_name}",
+    path      => "/etc/init.d/${dsearch_service}",
     owner     => root,
     group     => root,
     mode      => 755,
@@ -46,22 +51,22 @@ class xplore::server::dsearch() {
     require     => [File["dsearch-serviceConfig"],
                     File["dsearch-serviceStartScript"],
                   ],
-    command  => "/sbin/chkconfig --add ${service_name}; /sbin/chkconfig ${service_name} on",
-    #onlyif   => ["! /sbin/service ${service_name} status"],
+    command  => "/sbin/chkconfig --add ${dsearch_service}; /sbin/chkconfig ${dsearch_service} on",
+    onlyif    =>  "/usr/bin/test `/sbin/chkconfig --list | /bin/grep ${dsearch_service} | /usr/bin/wc -l` -eq 0",
   }
 
 
   exec { "dsearch-create":
-    command     => "${installer}/dsearchConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f /home/xplore/sig/dsearch/dsearch.properties -r /home/xplore/sig/dsearch/response.properties",
-    cwd         => $installer,
+    command     => "${xplore_home}/setup/dsearch/dsearchConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f ${installer_location}/dsearch/dsearch.properties -r /home/xplore/sig/dsearch/response.properties",
+    cwd         => "${xplore_home}/setup/dsearch",
     require     => [File["dsearch-response"],
-                    User["xplore"],
+                    User["${xplore_owner}"],
                     ],
-    environment => ["HOME=/home/xplore",
+    environment => ["HOME=/home/${xplore_owner}",
                     ],
     creates     => "${xplore_home}/wildfly9.0.1/server/startPrimaryDsearch.sh",
-    user        => xplore,
-    group       => xplore,
+    user        => $xplore_owner,
+    group       => $xplore_group,
     logoutput   => true,
     timeout     => 3000,
   }

@@ -3,35 +3,40 @@
 # Adds an Apache configuration file.
 # http://stackoverflow.com/questions/19024134/calling-puppet-defined-resource-with-multiple-parameters-multiple-times
 #
-class xplore::server::indexagent() {
-  $installer       = '/u01/app/xplore/setup/indexagent'
-  $xplore_home     = '/u01/app/xplore'
+define xplore::server::indexagent(
+  $installer_location,
+  $xplore_home,
+  $version,
+  $xplore_owner,
+  $xplore_group,
+
+  $dsearch_host,
 # note this should only be the first two ports, eg if 9300, use 93
-  $dsearch_port     = '9300'
-  $dsearch_host     = 'xplore.local'
+  $dsearch_port,
 
-  $ia_name         = 'Indexagent'
-  $ia_host         = 'xplore.local'
-  $ia_port         = '9200'
-  $ia_pass         = '1234qwer'
-  $ia_storage      = '/u01/app/xplore/iastore'
+  $ia_service_name = $name,
+  $ia_host,
+  $ia_port,
+  $ia_password,
+  $ia_storage,
 
-  $repo            = 'fcms'
-  $repo_user       = 'dmadmin'
-  $repo_pass       = 'vagrant'
-  $docbroker_host  = 'dctm.local'
-  $docbroker_port  = '1489'
-  $globalrepo      = 'fcms'
-  $globaluser      = 'dm_bof_registry'
-  $globalpasswod   = '1234qwer'
-  $service_name    = $ia_name
+  $repository,
+  $repository_user,
+  $repository_password,
+  $docbroker_host,
+  $docbroker_port,
+  $globalrepo,
+  $globaluser,
+  $globalpasswod,
 
+  $service_name    = $ia_service_name
+  ) {
   # template(<FILE REFERENCE>, [<ADDITIONAL FILES>, ...])
   file { 'ia-response':
     ensure    => file,
-    path      => '/home/xplore/sig/ia/indexagent.properties',
-    owner     => xplore,
-    group     => xplore,
+    path      => "${installer_location}/ia/indexagent.properties",
+    owner     => $xplore_owner,
+    group     => $xplore_group,
     content   => template('xplore/indexagent.properties.erb'),
   }
 
@@ -57,21 +62,21 @@ class xplore::server::indexagent() {
     require     => [File["ia-serviceConfig"],
                     File["ia-serviceStartScript"],
                   ],
-    command  => "/sbin/chkconfig --add ${service_name}; /sbin/chkconfig ${service_name} on",
-    #onlyif   => ["! /sbin/service ${service_name} status"],
+    command  => "/sbin/chkconfig --add ${ia_service_name}; /sbin/chkconfig ${ia_service_name} on",
+    onlyif    =>  "/usr/bin/test `/sbin/chkconfig --list | /bin/grep ${ia_service_name} | /usr/bin/wc -l` -eq 0",
   }
 
   exec { "ia-create":
-    command     => "${installer}/iaConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f /home/xplore/sig/ia/indexagent.properties -r /home/xplore/sig/ia/response.properties",
-    cwd         => $installer,
+    command     => "${xplore_home}/setup/indexagent/iaConfig.bin LAX_VM ${xplore_home}/java64/1.8.0_77/jre/bin/java -f ${installer_location}/ia/indexagent.properties -r ${installer_location}/ia/response.properties",
+    cwd         => "${xplore_home}/setup/indexagent",
     require     => [File["ia-response"],
-                    User["xplore"],
+                    User["${xplore_owner}"],
                     ],
-    environment => ["HOME=/home/xplore",
+    environment => ["HOME=/home/${xplore_owner}",
                     ],
     creates     => "${xplore_home}/wildfly9.0.1/server/startIndexagent.sh",
-    user        => xplore,
-    group       => xplore,
+    user        => $xplore_owner,
+    group       => $xplore_group,
     logoutput   => true,
     timeout     => 3000,
   }
